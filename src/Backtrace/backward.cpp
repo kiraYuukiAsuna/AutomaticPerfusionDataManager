@@ -35,8 +35,7 @@
 
 #include "backward.hpp"
 
-#include "src/framework/core/log/EditorConsoleSink.h"
-#include "src/framework/core/log/Log.h"
+#include "Log/Log.h"
 
 namespace backward {
     // SignalHandling sh;

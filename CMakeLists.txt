@@ -12,7 +12,34 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp)
+set(PROJECT_SOURCES
+        main.cpp
+
+        ThirdParty/sqlite3/sqlite3.c
+
+        src/Backtrace/backward.hpp
+        src/Backtrace/backward.cpp
+
+        src/Log/EditorConsoleSink.h
+        src/Log/Log.h
+        src/Log/Log.cpp
+
+        src/FileReader/Resource.hpp
+        src/FileReader/CellMapInfo.hpp
+        src/FileReader/CellTissueInfo.hpp
+        src/FileReader/CellTrackInfo.hpp
+        src/FileReader/NeedleTrackInfo.hpp
+        src/FileReader/StateTimeDifferencesInfo.hpp
+        src/FileReader/VideoFrameInfo.hpp
+
+        src/UI/MainWindow.cpp
+        src/UI/MainWindow.h
+        src/UI/MainWindow.ui
+
+)
+
+
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} )
 target_link_libraries(${PROJECT_NAME}
         Qt::Core
         Qt::Gui
@@ -23,12 +50,14 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         src
-        ThirdParty/nlohmann_json
+        ThirdParty/magic_enum/include
+        ThirdParty/nlohmann_json/include
+        ThirdParty/rapidcsv/include
         ThirdParty/spdlog/include
+        ThirdParty/sqlite3
+        ThirdParty/sqlite_orm/include/sqlite_orm
         ThirdParty/vfspp/vendor/miniz-cpp
         ThirdParty/vfspp/include
-        ThirdParty/rapidcsv
-        ThirdParty/magic_enum
 )
 
 target_link_directories(${PROJECT_NAME}

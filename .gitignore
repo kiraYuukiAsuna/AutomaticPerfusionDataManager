@@ -1,5 +1,7 @@
 cmake-build-debug/
 cmake-build-release/
+cmake-build-relwithdebinfo/
 .idea/
 .vscode/
-
+TissueRecord.7z
+TissueRecord/
