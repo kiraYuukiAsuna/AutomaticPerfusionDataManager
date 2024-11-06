@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 project(AutomaticPerfusionDataManager)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -11,6 +13,8 @@ find_package(Qt6 COMPONENTS
         Gui
         Widgets
         REQUIRED)
+
+add_subdirectory("ThirdParty/ElaWidgetTools/src")
 
 set(PROJECT_SOURCES
         main.cpp
@@ -34,22 +38,21 @@ set(PROJECT_SOURCES
 
         src/UI/MainWindow.cpp
         src/UI/MainWindow.h
-        src/UI/MainWindow.ui
+
+        src/DataImport/DataImporter.hpp
+
+        src/Util/Util.hpp
 
 )
 
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} )
-target_link_libraries(${PROJECT_NAME}
-        Qt::Core
-        Qt::Gui
-        Qt::Widgets
-)
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         src
+        ThirdParty/ElaWidgetTools/src/include
         ThirdParty/magic_enum/include
         ThirdParty/nlohmann_json/include
         ThirdParty/rapidcsv/include
@@ -63,6 +66,13 @@ target_include_directories(${PROJECT_NAME}
 target_link_directories(${PROJECT_NAME}
         PUBLIC
         ThirdParty
+)
+
+target_link_libraries(${PROJECT_NAME}
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        elawidgettools
 )
 
 if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)

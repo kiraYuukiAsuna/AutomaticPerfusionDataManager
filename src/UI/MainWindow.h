@@ -1,18 +1,19 @@
 #pragma once
 
-#include <QMainWindow>
+#include "ElaWindow.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class ElaContentDialog;class MainWindow : public ElaWindow {
 Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    void initWindow();
+    void initEdgeLayout();
+    void initContent();
+
 private:
-    Ui::MainWindow *ui;
+    ElaContentDialog* m_CloseDialog{nullptr};
 };

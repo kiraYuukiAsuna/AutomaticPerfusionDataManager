@@ -6,7 +6,9 @@
 #include "FileReader/CellTissueInfo.hpp"
 #include "FileReader/StateTimeDifferencesInfo.hpp"
 #include "FileReader/VideoFrameInfo.hpp"
+#include <DataImport/DataImporter.hpp>
 
+#include "DataImport/DataImporter.hpp"
 
 struct User {
     int id;
@@ -23,7 +25,7 @@ struct UserType {
 };
 
 
-int main(int argc, char* argv[]) {
+int smain(int argc, char* argv[]) {
     Seele::Log::Init();
 
     QApplication app(argc, argv);
@@ -63,3 +65,21 @@ int main(int argc, char* argv[]) {
     Seele::Log::Shutdown();
     return res;
 }
+
+#include <QApplication>
+#include <QScreen>
+
+#include "ElaApplication.h"
+
+int main(int argc, char* argv[])
+{
+    DataImporter importer;
+    importer.importRecordFromFolder(R"(C:\Users\kiraYuukiAsuna\Desktop\TissueRecord)");
+
+    QApplication app(argc, argv);
+    eApp->init();
+    MainWindow w;
+    w.show();
+    return app.exec();
+}
+
