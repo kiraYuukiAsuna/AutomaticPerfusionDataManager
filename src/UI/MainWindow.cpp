@@ -1,6 +1,8 @@
 #include "MainWindow.h"
-
 #include "ElaContentDialog.h"
+#include "ElaEventBus.h"
+#include "ElaText.h"
+#include "Database/SqliteSchema.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     ElaWindow(parent) {
@@ -38,4 +40,11 @@ void MainWindow::initEdgeLayout(){
 }
 
 void MainWindow::initContent(){
+    QString _settingKey{""};
+
+    m_OverviewPage = new OverviewPage(this);
+    addPageNode("Overview Page", m_OverviewPage, ElaIconType::House);
+    addFooterNode("About", nullptr, _settingKey, 0, ElaIconType::User);
+    qDebug() << "已注册的事件列表" << ElaEventBus::getInstance()->getRegisteredEventsName();
+
 }

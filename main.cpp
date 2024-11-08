@@ -9,6 +9,7 @@
 #include <DataImport/DataImporter.hpp>
 
 #include "DataImport/DataImporter.hpp"
+#include "Database/SqliteSchema.hpp"
 
 struct User {
     int id;
@@ -75,6 +76,7 @@ int main(int argc, char* argv[])
 {
     DataImporter importer;
     importer.importRecordFromFolder(R"(C:\Users\kiraYuukiAsuna\Desktop\TissueRecord)");
+
 
     QApplication app(argc, argv);
     eApp->init();

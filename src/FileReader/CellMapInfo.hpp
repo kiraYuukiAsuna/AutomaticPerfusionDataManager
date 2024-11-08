@@ -4,6 +4,9 @@
 #include <vector>
 
 struct CellMapInfo {
+    int id = -1;
+    std::string TissueName;
+
     int              MapIndex = 0;
     float            MapBeginCordX = 0;
     float            MapBeginCordY = 0;

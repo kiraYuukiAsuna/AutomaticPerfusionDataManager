@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ElaWindow.h"
-
+#include "Pages/OverviewPage.h"
 
 class ElaContentDialog;class MainWindow : public ElaWindow {
 Q_OBJECT
@@ -16,4 +16,6 @@ public:
 
 private:
     ElaContentDialog* m_CloseDialog{nullptr};
+
+    OverviewPage* m_OverviewPage{nullptr};
 };

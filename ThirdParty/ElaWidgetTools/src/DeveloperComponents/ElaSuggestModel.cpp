@@ -33,7 +33,9 @@ void ElaSuggestModel::setSearchSuggestion(QVector<ElaSuggestion*> suggestionVect
 
 void ElaSuggestModel::clearSearchNode()
 {
+    beginResetModel();
     this->_suggestionVector.clear();
+    endResetModel();
 }
 
 ElaSuggestion* ElaSuggestModel::getSearchSuggestion(int row)

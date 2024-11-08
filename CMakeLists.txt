@@ -12,6 +12,7 @@ find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
+        Charts
         REQUIRED)
 
 add_subdirectory("ThirdParty/ElaWidgetTools/src")
@@ -43,6 +44,12 @@ set(PROJECT_SOURCES
 
         src/Util/Util.hpp
 
+        src/Database/SqliteSchema.hpp
+        src/UI/Pages/BasePage.cpp
+        src/UI/Pages/BasePage.h
+        src/UI/Pages/OverviewPage.cpp
+        src/UI/Pages/OverviewPage.h
+
 )
 
 
@@ -72,6 +79,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Core
         Qt::Gui
         Qt::Widgets
+        Qt::Charts
         elawidgettools
 )
 

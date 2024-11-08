@@ -4,6 +4,10 @@
 #include <string>
 
 struct NeedleTrackInfo {
+    int id = -1;
+    std::string TissueName;
+    int CellId = -1;
+
     std::string NeedleName;
     float       CordX = 0;
     float       CordY = 0;

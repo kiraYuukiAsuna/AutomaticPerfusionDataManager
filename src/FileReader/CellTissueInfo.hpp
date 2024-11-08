@@ -6,6 +6,8 @@
 #include <rapidcsv.h>
 
 struct CellTissueInfo {
+    int id = -1;
+
     std::string TissueCellID;
     std::string SamplePreparationDate;
     std::string SamplePreparationTime;
@@ -116,8 +118,8 @@ struct CellTissueInfo {
 
 using CellTissueInfoList = std::vector<CellTissueInfo>;
 
-CellTissueInfoList ReadCellTissueListFromFile(const std::string&filePath) {
-    rapidcsv::Document doc(filePath, rapidcsv::LabelParams(0, -1));
+inline CellTissueInfoList ReadCellTissueListFromFile(const std::filesystem::path&filePath) {
+    rapidcsv::Document doc(filePath.string(), rapidcsv::LabelParams(0, -1));
 
     CellTissueInfoList cellTissueInfoList;
     for (int row = 0; row < doc.GetRowCount(); row++) {

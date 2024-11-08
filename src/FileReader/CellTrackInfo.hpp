@@ -5,6 +5,9 @@
 #include <vector>
 
 struct CellTrackInfo {
+    int id = -1;
+    std::string TissueName;
+
     std::string CellID;
     float       CordX = 0;
     float       CordY = 0;
