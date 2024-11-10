@@ -4,6 +4,8 @@ project(AutomaticPerfusionDataManager)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -58,21 +60,21 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} )
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        src
-        ThirdParty/ElaWidgetTools/src/include
-        ThirdParty/magic_enum/include
-        ThirdParty/nlohmann_json/include
-        ThirdParty/rapidcsv/include
-        ThirdParty/spdlog/include
-        ThirdParty/sqlite3
-        ThirdParty/sqlite_orm/include/sqlite_orm
-        ThirdParty/vfspp/vendor/miniz-cpp
-        ThirdParty/vfspp/include
+        "src"
+        "ThirdParty/ElaWidgetTools/src/include"
+        "ThirdParty/magic_enum/include"
+        "ThirdParty/nlohmann_json/include"
+        "ThirdParty/rapidcsv/include"
+        "ThirdParty/spdlog/include"
+        "ThirdParty/sqlite3"
+        "ThirdParty/sqlite_orm/include/sqlite_orm"
+        "ThirdParty/vfspp/vendor/miniz-cpp"
+        "ThirdParty/vfspp/include"
 )
 
 target_link_directories(${PROJECT_NAME}
         PUBLIC
-        ThirdParty
+        "ThirdParty"
 )
 
 target_link_libraries(${PROJECT_NAME}

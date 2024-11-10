@@ -5,3 +5,4 @@ cmake-build-relwithdebinfo/
 .vscode/
 TissueRecord.7z
 TissueRecord/
+build/
