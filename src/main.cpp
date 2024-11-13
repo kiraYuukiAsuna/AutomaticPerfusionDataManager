@@ -76,10 +76,6 @@ int smain(int argc, char* argv[]) {
 #include "ElaApplication.h"
 
 int main(int argc, char* argv[]) {
-	DataImporter importer;
-	importer.importRecordFromFolder(
-		R"(D:\Workspace\AutomaticPerfusionDataManager\TissueRecord\)");
-
 	QApplication app(argc, argv);
 	eApp->init();
 	MainWindow w;

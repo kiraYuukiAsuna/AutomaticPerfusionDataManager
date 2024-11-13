@@ -1,50 +1,52 @@
 #include "MainWindow.h"
+
+#include "Database/SqliteSchema.hpp"
 #include "ElaContentDialog.h"
 #include "ElaEventBus.h"
 #include "ElaText.h"
-#include "Database/SqliteSchema.hpp"
+#include "Pages/DataImportPage.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    ElaWindow(parent) {
-    initWindow();
+MainWindow::MainWindow(QWidget *parent) : ElaWindow(parent) {
+	initWindow();
 
-    //额外布局
-    initEdgeLayout();
+	// 额外布局
+	initEdgeLayout();
 
-    //中心窗口
-    initContent();
+	// 中心窗口
+	initContent();
 
-    // 拦截默认关闭事件
-    m_CloseDialog = new ElaContentDialog(this);
-    connect(m_CloseDialog, &ElaContentDialog::rightButtonClicked, this, &MainWindow::closeWindow);
-    connect(m_CloseDialog, &ElaContentDialog::middleButtonClicked, this, &MainWindow::showMinimized);
-    this->setIsDefaultClosed(false);
-    connect(this, &MainWindow::closeButtonClicked, this, [=]() {
-        m_CloseDialog->exec();
-    });
+	// 拦截默认关闭事件
+	m_CloseDialog = new ElaContentDialog(this);
+	connect(m_CloseDialog, &ElaContentDialog::rightButtonClicked, this,
+			&MainWindow::closeWindow);
+	connect(m_CloseDialog, &ElaContentDialog::middleButtonClicked, this,
+			&MainWindow::showMinimized);
+	this->setIsDefaultClosed(false);
+	connect(this, &MainWindow::closeButtonClicked, this,
+			[=]() { m_CloseDialog->exec(); });
 
-    //移动到中心
-    moveToCenter();
+	// 移动到中心
+	moveToCenter();
 }
 
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow() {}
 
-}
+void MainWindow::initWindow() { setUserInfoCardVisible(false); }
 
-void MainWindow::initWindow(){
-    setUserInfoCardVisible(false);
-}
+void MainWindow::initEdgeLayout() {}
 
-void MainWindow::initEdgeLayout(){
+void MainWindow::initContent() {
+	QString _settingKey{""};
 
-}
+    m_DataImportPage = new DataImportPage(this);
+    addPageNode("数据导入页面", m_DataImportPage, ElaIconType::Database);
 
-void MainWindow::initContent(){
-    QString _settingKey{""};
+	m_OverviewPage = new OverviewPage(this);
+	addPageNode("总览页面", m_OverviewPage, ElaIconType::House);
 
-    m_OverviewPage = new OverviewPage(this);
-    addPageNode("Overview Page", m_OverviewPage, ElaIconType::House);
-    addFooterNode("About", nullptr, _settingKey, 0, ElaIconType::User);
-    qDebug() << "已注册的事件列表" << ElaEventBus::getInstance()->getRegisteredEventsName();
+    m_QueryPage = new QueryPage(this);
+    addPageNode("查询页面", m_QueryPage, ElaIconType::Browser);
+
+	addFooterNode("About", nullptr, _settingKey, 0, ElaIconType::Info);
 
 }

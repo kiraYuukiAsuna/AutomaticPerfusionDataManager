@@ -10,20 +10,34 @@ class DataImporter {
 public:
 	std::vector<std::filesystem::path> m_TissueFolders;
 
-	void importRecordFromFolder(const std::filesystem::path& folderPath) {
-		for (const auto& tissueFolderEntry :
-			 std::filesystem::directory_iterator(folderPath)) {
-			if (tissueFolderEntry.is_directory()) {
-				m_TissueFolders.emplace_back(tissueFolderEntry.path());
-			}
-		}
+    using CallBackType = std::function<void(bool, const std::string&)>;
 
-		for (const auto& tissueFolder : m_TissueFolders) {
-			importCellTissueFile(tissueFolder);
-		}
+	int importRecordFromFolder(const std::filesystem::path& folderPath, CallBackType callback) {
+	    int dbCellTissueInsertCount = 0;
+	    try {
+	        for (const auto& tissueFolderEntry :
+                 std::filesystem::directory_iterator(folderPath)) {
+	            if (tissueFolderEntry.is_directory()) {
+	                m_TissueFolders.emplace_back(tissueFolderEntry.path());
+	            }
+                 }
+
+	        for (const auto& tissueFolder : m_TissueFolders) {
+	            int inserted = importCellTissueFile(tissueFolder);
+	            dbCellTissueInsertCount += inserted;
+	        }
+
+	        callback(true, "导入数据成功！" + std::to_string(dbCellTissueInsertCount) + "条新数据已导入！");
+	    }catch (std::exception& e) {
+            callback(false, std::string{"导入数据失败！"} + e.what());
+        }
+
+	    return dbCellTissueInsertCount;
 	}
 
-	void importCellTissueFile(const std::filesystem::path& tissueFolder) {
+	int importCellTissueFile(const std::filesystem::path& tissueFolder) {
+        int dbCellTissueInsertCount = 0;
+
 		std::filesystem::path cellMapFilePath;
 		std::filesystem::path cellTissueFilePath;
 		int date = 0;
@@ -51,7 +65,7 @@ public:
 							auto lastFileName = iter->second.stem().string();
 							auto sp = StringSplit(lastFileName, '_');
 							int lastDate = std::stoi(sp[0]);
-							int lastTTime = std::stoi(sp[0]);
+							int lastTTime = std::stoi(sp[1]);
 
 							if (curDate > lastDate ||
 								(curDate == lastDate && curTime > lastTTime)) {
@@ -108,7 +122,6 @@ public:
 		}
 
 		auto db = SqliteSchema::getDBStorage();
-		db.sync_schema();
 
 		auto cellTissueInfos = ReadCellTissueListFromFile(cellTissueFilePath);
 		for (auto& cellTissueInfo : cellTissueInfos) {
@@ -124,7 +137,10 @@ public:
 			for (auto& stateInfo : state) {
 				stateInfo.TissueName = tissueFolder.filename().string();
 				db.insert(stateInfo);
+			    dbCellTissueInsertCount++;
 			}
 		}
+
+	    return dbCellTissueInsertCount;
 	}
 };

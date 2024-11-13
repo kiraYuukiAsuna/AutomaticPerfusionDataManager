@@ -1,26 +1,33 @@
 #pragma once
 
-#include "BasePage.h"
-
-#include <QChartView>
 #include <QChart>
+#include <QChartView>
 #include <QPieSeries>
 #include <QPieSlice>
 
+#include "BasePage.h"
+#include "FileReader/CellTissueInfo.hpp"
 
-class OverviewPage : public BasePage{
-Q_OBJECT
+class OverviewPage : public BasePage {
+	Q_OBJECT
 public:
-    explicit OverviewPage(QWidget* parent = nullptr);
-    ~OverviewPage();
-
+	explicit OverviewPage(QWidget *parent = nullptr);
+	~OverviewPage();
 
 private:
-    QChartView *m_StatusChartView = nullptr;
-    QChartView *m_FluorescenceResultChartView = nullptr;
+    ElaText *m_TimeRange = nullptr;
 
-    void getStatus();
-    void getFluorescenceResult();
+	QChartView *m_StatusChartView = nullptr;
+	QChartView *m_FluorescenceResultChartView = nullptr;
+    QChartView *m_PerfusionChartView = nullptr;
 
+    ElaText *m_SuccessRateText = nullptr;
 
+	void getStatus();
+	void getFluorescenceResult();
+    void calculateSuccessRate();
+    void calculateTimeRange();
+    void plotPerfusionResults();
+
+    void onSliceHovered(QPieSlice *slice, bool state);
 };

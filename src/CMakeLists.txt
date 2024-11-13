@@ -47,9 +47,14 @@ set(PROJECT_SOURCES
         Database/SqliteSchema.hpp
         UI/Pages/BasePage.cpp
         UI/Pages/BasePage.h
-        UI/Pages/OverviewPage.cpp
         UI/Pages/OverviewPage.h
+        UI/Pages/OverviewPage.cpp
+        UI/Pages/DataImportPage.h
+        UI/Pages/DataImportPage.cpp
 
+        Worker/Worker.hpp
+        UI/Pages/QueryPage.cpp
+        UI/Pages/QueryPage.h
 )
 
 
@@ -67,6 +72,7 @@ target_include_directories(${PROJECT_NAME}
         "../ThirdParty/sqlite_orm/include/sqlite_orm"
         "../ThirdParty/vfspp/vendor/miniz-cpp"
         "../ThirdParty/vfspp/include"
+        ../ThirdParty/asio/include
 )
 
 target_link_directories(${PROJECT_NAME}

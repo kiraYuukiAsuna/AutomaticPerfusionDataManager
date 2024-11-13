@@ -6,6 +6,7 @@
 struct CellMapInfo {
 	int id = -1;
 	std::string TissueName;
+    std::string NeedleNames;
 
 	int MapIndex = 0;
 	float MapBeginCordX = 0;
@@ -47,6 +48,10 @@ struct CellMapInfo {
 			jsonObject.value("SurfaceZ", defaultDataObject.SurfaceZ);
 		dataObject.needleIndexs =
 			jsonObject.value("needleIndexs", defaultDataObject.needleIndexs);
+
+	    for (auto& needle : dataObject.needleIndexs) {
+            dataObject.NeedleNames += std::to_string(needle) + ",";
+        }
 	}
 };
 
