@@ -1,18 +1,20 @@
-#include "OverviewPage.h"
+#include "QueryByTimePage.h"
 
-#include "Database/SqliteSchema.hpp"
-#include "ElaText.h"
-#include <QDate>
+#include <QChart>
+#include <QChartView>
+#include <QDateTime>
 #include <QDateTimeAxis>
 #include <QLineSeries>
+#include <QPieSeries>
 #include <QToolTip>
-#include <QVBoxLayout>
 #include <QValueAxis>
+#include <QVBoxLayout>
 
 #include "ElaPushButton.h"
+#include "ElaText.h"
 #include "Analysis/AnalysisBase.hpp"
 
-OverviewPage::OverviewPage(QWidget* parent) : BasePage(parent, "总览") {
+QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     auto controlLayout = new QHBoxLayout(this);
 
     auto m_RefreshButton = new ElaPushButton("刷新", this);
@@ -51,10 +53,10 @@ OverviewPage::OverviewPage(QWidget* parent) : BasePage(parent, "总览") {
     centerLayout->addWidget(m_PerfusionChartView);
 }
 
-OverviewPage::~OverviewPage() {
+QueryByTimePage::~QueryByTimePage() {
 }
 
-void OverviewPage::RefreshGlobalData() {
+void QueryByTimePage::RefreshGlobalData() {
     getStatus();
     getFluorescenceResult();
     calculateSuccessRate();
@@ -62,7 +64,7 @@ void OverviewPage::RefreshGlobalData() {
     plotPerfusionResults();
 }
 
-void OverviewPage::getStatus() {
+void QueryByTimePage::getStatus() {
     auto results = AnalysisBase::getInstance().GetStatusGlobal();
 
     auto series = new QPieSeries;
@@ -99,10 +101,10 @@ void OverviewPage::getStatus() {
     m_StatusChartView->chart()->setAnimationOptions(QChart::AllAnimations);
     m_StatusChartView->chart()->legend()->show();
 
-    connect(series, &QPieSeries::hovered, this, &OverviewPage::onSliceHovered);
+    connect(series, &QPieSeries::hovered, this, &QueryByTimePage::onSliceHovered);
 }
 
-void OverviewPage::getFluorescenceResult() {
+void QueryByTimePage::getFluorescenceResult() {
     auto results = AnalysisBase::getInstance().GetFluorescenceResultGlobal();
 
     auto series = new QPieSeries;
@@ -140,10 +142,10 @@ void OverviewPage::getFluorescenceResult() {
     m_FluorescenceResultChartView->chart()->setAnimationOptions(
         QChart::AllAnimations);
     m_FluorescenceResultChartView->chart()->legend()->show();
-    connect(series, &QPieSeries::hovered, this, &OverviewPage::onSliceHovered);
+    connect(series, &QPieSeries::hovered, this, &QueryByTimePage::onSliceHovered);
 }
 
-void OverviewPage::calculateSuccessRate() {
+void QueryByTimePage::calculateSuccessRate() {
     auto [fluorescenceResults, statusResults] = AnalysisBase::getInstance().GetSuccessRateGlobal();
 
     int successCount = 0;
@@ -181,7 +183,7 @@ void OverviewPage::calculateSuccessRate() {
     m_SuccessRateText->setText(QString::fromStdString(successRateText));
 }
 
-void OverviewPage::onSliceHovered(QPieSlice* slice, bool state) {
+void QueryByTimePage::onSliceHovered(QPieSlice* slice, bool state) {
     if (state) {
         // Get the value of the hovered slice
         QString value = QString::number(slice->value());
@@ -214,7 +216,7 @@ void OverviewPage::onSliceHovered(QPieSlice* slice, bool state) {
     }
 }
 
-void OverviewPage::calculateTimeRange() {
+void QueryByTimePage::calculateTimeRange() {
     auto results = AnalysisBase::getInstance().GetTimeRangeGlobal();
 
     std::tm minTimePoint = {}, maxTimePoint = {};
@@ -256,7 +258,7 @@ void OverviewPage::calculateTimeRange() {
         "（测试数据）已统计数据时间范围：" + perfusionTime));
 }
 
-void OverviewPage::plotPerfusionResults() {
+void QueryByTimePage::plotPerfusionResults() {
     auto results = AnalysisBase::getInstance().GetPerfusionResultsGlobal();
 
     std::map<time_t, int> successCounts;

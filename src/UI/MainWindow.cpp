@@ -44,7 +44,7 @@ void MainWindow::initContent() {
 	m_OverviewPage = new OverviewPage(this);
 	addPageNode("总览页面", m_OverviewPage, ElaIconType::House);
 
-    m_QueryPage = new QueryPage(this);
+    m_QueryPage = new QueryByTimePage(this);
     addPageNode("查询页面", m_QueryPage, ElaIconType::Browser);
 
 	addFooterNode("About", nullptr, _settingKey, 0, ElaIconType::Info);

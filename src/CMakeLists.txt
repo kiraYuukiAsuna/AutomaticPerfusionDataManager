@@ -53,8 +53,10 @@ set(PROJECT_SOURCES
         UI/Pages/DataImportPage.cpp
 
         Worker/Worker.hpp
-        UI/Pages/QueryPage.cpp
-        UI/Pages/QueryPage.h
+        UI/Pages/QueryByTimePage.cpp
+        UI/Pages/QueryByTimePage.h
+
+        Analysis/AnalysisBase.hpp
 )
 
 

@@ -2,19 +2,17 @@
 
 #include <QChart>
 #include <QChartView>
-#include <QPieSeries>
 #include <QPieSlice>
 
-#include "BasePage.h"
-#include "FileReader/CellTissueInfo.hpp"
+#include "UI/Pages/BasePage.h"
 
-class OverviewPage : public BasePage {
+class QueryByTimePage : public BasePage {
     Q_OBJECT
 
 public:
-    explicit OverviewPage(QWidget* parent = nullptr);
+    explicit QueryByTimePage(QWidget* parent = nullptr);
 
-    ~OverviewPage();
+    ~QueryByTimePage();
 
 private:
     ElaText* m_TimeRange = nullptr;

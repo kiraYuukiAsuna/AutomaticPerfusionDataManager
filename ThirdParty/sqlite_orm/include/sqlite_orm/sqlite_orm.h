@@ -22638,6 +22638,7 @@ namespace sqlite_orm {
                 static_assert(!is_compound_operator_v<T> || sizeof...(Args) == 0,
                               "Cannot use args with a compound operator");
                 auto statement = this->prepare(sqlite_orm::select(std::move(m), std::forward<Args>(args)...));
+                std::string a =  statement.sql();
                 return this->execute(statement);
             }
 

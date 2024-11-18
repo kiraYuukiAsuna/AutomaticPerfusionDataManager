@@ -126,7 +126,10 @@ public:
 		auto cellTissueInfos = ReadCellTissueListFromFile(cellTissueFilePath);
 		for (auto& cellTissueInfo : cellTissueInfos) {
 			try {
-				db.insert(cellTissueInfo);
+				int id = db.insert(cellTissueInfo);
+			    if(id!=-1){
+                    dbCellTissueInsertCount++;
+                }
 			} catch (std::exception& e) {
 				std::cout << e.what() << std::endl;
 			}
@@ -137,7 +140,6 @@ public:
 			for (auto& stateInfo : state) {
 				stateInfo.TissueName = tissueFolder.filename().string();
 				db.insert(stateInfo);
-			    dbCellTissueInsertCount++;
 			}
 		}
 

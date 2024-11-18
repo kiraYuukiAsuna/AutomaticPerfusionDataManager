@@ -3,7 +3,7 @@
 #include "ElaWindow.h"
 #include "Pages/DataImportPage.h"
 #include "Pages/OverviewPage.h"
-#include "Pages/QueryPage.h"
+#include "Pages/QueryByTimePage.h"
 
 class ElaContentDialog;
 class MainWindow : public ElaWindow {
@@ -22,5 +22,5 @@ private:
 
 	OverviewPage* m_OverviewPage{nullptr};
     DataImportPage* m_DataImportPage{nullptr};
-    QueryPage* m_QueryPage{nullptr};
+    QueryByTimePage* m_QueryPage{nullptr};
 };
