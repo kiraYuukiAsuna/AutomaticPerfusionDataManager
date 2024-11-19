@@ -1,9 +1,16 @@
 #pragma once
 
+#include "ElaCalendar.h"
+#include "ElaMultiSelectComboBox.h"
+#include "ElaPushButton.h"
+
 #include <QChart>
 #include <QChartView>
 #include <QPieSlice>
+#include <QTimeEdit>
 
+#include "ElaCalendarPicker.h"
+#include "ElaCheckBox.h"
 #include "UI/Pages/BasePage.h"
 
 class QueryByTimePage : public BasePage {
@@ -14,7 +21,41 @@ public:
 
     ~QueryByTimePage();
 
+public:
+    void RefreshGlobalData();
+
+    void ExecuteQuery();
+
+    void GetAllUsers();
+
+    void calculateTimeRange();
+
+    void calculateSuccessRate();
+
+    void plotStatus();
+
+    void plotFluorescenceResult();
+
+    void plotPerfusionResultsByDay();
+
 private:
+    QWidget* m_CentralWidget = nullptr;
+
+    ElaCalendarPicker* m_StartDate = nullptr;
+    ElaCalendarPicker* m_EndDate = nullptr;
+
+    QTimeEdit* m_StartTime = nullptr;
+    QTimeEdit* m_EndTime = nullptr;
+
+    ElaText* m_EnableTimeRangeQuery = nullptr;
+    ElaCheckBox* m_EnableTimeRangeQueryCheckBox = nullptr;
+
+    ElaPushButton* m_RefreshButton = nullptr;
+    ElaPushButton* m_QueryButton = nullptr;
+
+    ElaMultiSelectComboBox* m_UserComboBox = nullptr;
+
+    ElaText* m_UserLabel = nullptr;
     ElaText* m_TimeRange = nullptr;
 
     QChart* m_StatusChart = nullptr;
@@ -28,17 +69,8 @@ private:
 
     ElaText* m_SuccessRateText = nullptr;
 
-    void RefreshGlobalData();
-
-    void getStatus();
-
-    void getFluorescenceResult();
-
-    void calculateSuccessRate();
-
-    void calculateTimeRange();
-
-    void plotPerfusionResults();
-
+private:
     void onSliceHovered(QPieSlice* slice, bool state);
+
+    void GetCurrentSelectedTimeRange(std::time_t&start, std::time_t&end);
 };

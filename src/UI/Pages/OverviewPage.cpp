@@ -63,7 +63,7 @@ void OverviewPage::RefreshGlobalData() {
 }
 
 void OverviewPage::getStatus() {
-    auto results = AnalysisBase::getInstance().GetStatusGlobal();
+    auto results = AnalysisBase::GetStatus();
 
     auto series = new QPieSeries;
 
@@ -103,7 +103,7 @@ void OverviewPage::getStatus() {
 }
 
 void OverviewPage::getFluorescenceResult() {
-    auto results = AnalysisBase::getInstance().GetFluorescenceResultGlobal();
+    auto results = AnalysisBase::GetFluorescenceResult();
 
     auto series = new QPieSeries;
 
@@ -144,7 +144,7 @@ void OverviewPage::getFluorescenceResult() {
 }
 
 void OverviewPage::calculateSuccessRate() {
-    auto [fluorescenceResults, statusResults] = AnalysisBase::getInstance().GetSuccessRateGlobal();
+    auto [fluorescenceResults, statusResults] = AnalysisBase::GetSuccessRate();
 
     int successCount = 0;
     int totalFluorescenceCount = 0;
@@ -215,7 +215,7 @@ void OverviewPage::onSliceHovered(QPieSlice* slice, bool state) {
 }
 
 void OverviewPage::calculateTimeRange() {
-    auto results = AnalysisBase::getInstance().GetTimeRangeGlobal();
+    auto results = AnalysisBase::GetTimeRange();
 
     std::tm minTimePoint = {}, maxTimePoint = {};
     bool first = true;
@@ -257,7 +257,7 @@ void OverviewPage::calculateTimeRange() {
 }
 
 void OverviewPage::plotPerfusionResults() {
-    auto results = AnalysisBase::getInstance().GetPerfusionResultsGlobal();
+    auto results = AnalysisBase::GetPerfusionResults();
 
     std::map<time_t, int> successCounts;
     std::map<time_t, int> failureCounts;

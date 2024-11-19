@@ -28,6 +28,18 @@ protected:
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
+
+    void enterEvent(QEnterEvent* event) override
+    {
+        update();
+        QPushButton::enterEvent(event);
+    }
+
+    void leaveEvent(QEvent* event) override
+    {
+        update();
+        QPushButton::leaveEvent(event);
+    }
 };
 
 #endif // ELAMESSAGEBUTTON_H

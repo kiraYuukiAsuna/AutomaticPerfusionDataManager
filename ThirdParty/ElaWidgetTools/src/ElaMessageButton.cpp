@@ -80,6 +80,7 @@ void ElaMessageButton::mousePressEvent(QMouseEvent* event)
     {
         d->_isLeftButtonPress = true;
     }
+    update();
     QPushButton::mousePressEvent(event);
 }
 
@@ -87,6 +88,7 @@ void ElaMessageButton::mouseReleaseEvent(QMouseEvent* event)
 {
     Q_D(ElaMessageButton);
     d->_isLeftButtonPress = false;
+    update();
     QPushButton::mouseReleaseEvent(event);
 }
 
