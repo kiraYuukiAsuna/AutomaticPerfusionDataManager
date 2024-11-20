@@ -11,6 +11,7 @@ struct StateTimeDifferenceInfo {
 	int id = -1;
 	std::string TissueName;
 
+	std::string NeedleName;
 	int CellId = 0;
 	float CellDepth = 0;
 	int IsBadCell = false;
@@ -33,6 +34,7 @@ struct StateTimeDifferenceInfo {
 
 	friend void to_json(nlohmann::json& jsonObject,
 						const StateTimeDifferenceInfo& dataObject) {
+		jsonObject["NeedleName"] = dataObject.NeedleName;
 		jsonObject["CellId"] = dataObject.CellId;
 		jsonObject["CellDepth"] = dataObject.CellDepth;
 		jsonObject["IsBadCell"] = dataObject.IsBadCell;
@@ -56,6 +58,8 @@ struct StateTimeDifferenceInfo {
 	friend void from_json(const nlohmann::json& jsonObject,
 						  StateTimeDifferenceInfo& dataObject) {
 		StateTimeDifferenceInfo defaultDataObject;
+		dataObject.NeedleName =
+	jsonObject.value("NeedleName", defaultDataObject.NeedleName);
 		dataObject.CellId =
 			jsonObject.value("CellId", defaultDataObject.CellId);
 		dataObject.CellDepth =
@@ -119,6 +123,10 @@ inline StateTimeDifferenceInfoList ReadStateTimeDifferenceInfoListFromFile(
 		stateTimeDifferenceInfo.WITHDRAW_NEEDLE = doc.GetCell<time_t>(15, row);
 		stateTimeDifferenceInfo.LIFT_NEEDLE = doc.GetCell<time_t>(16, row);
 		stateTimeDifferenceInfo.END = doc.GetCell<time_t>(17, row);
+
+		if(doc.GetColumnCount() >= 19) {
+			stateTimeDifferenceInfo.NeedleName = doc.GetCell<std::string>(18, row);
+		}
 
 		stateTimeDifferenceInfoList.emplace_back(stateTimeDifferenceInfo);
 	}

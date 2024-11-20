@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "json.hpp"
+#include "Log/Log.h"
 
 struct CellTissueInfo {
 	int id = -1;
@@ -152,6 +153,11 @@ inline CellTissueInfoList ReadCellTissueListFromFile(
 
 	CellTissueInfoList cellTissueInfoList;
 	for (int row = 0; row < doc.GetRowCount(); row++) {
+		if(doc.GetColumnCount()<31) {
+			SeeleError("CellTissue File {} Has Invalid Column Count!", filePath.string());
+			return {};
+			throw std::runtime_error(std::format("CellTissue File {} Has Invalid Column Count!", filePath.string()));
+		}
 		CellTissueInfo cellTissueInfo;
 		cellTissueInfo.TissueCellID = doc.GetCell<std::string>(0, row);
 		cellTissueInfo.SamplePreparationDate = doc.GetCell<std::string>(1, row);

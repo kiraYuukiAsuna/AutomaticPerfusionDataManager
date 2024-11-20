@@ -17,18 +17,18 @@ DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入
     auto *centralWidget = this->centralWidget();
     auto *centerLayout = new QVBoxLayout(centralWidget);
 
-    auto* filePathSelector = new QHBoxLayout(this);
-    filePathSelector->addWidget(new ElaText("路径:", this));
+    auto* filePathSelectorLayout = new QHBoxLayout(this);
+    filePathSelectorLayout->addWidget(new ElaText("路径:", this));
     auto* filePathInput = new ElaLineEdit(this);
     filePathInput->setEnabled(false);
-    filePathSelector->addWidget(filePathInput);
+    filePathSelectorLayout->addWidget(filePathInput);
     auto* fileSelectorButton = new ElaPushButton("选择TissueRecord文件夹", this);
     connect(fileSelectorButton, &ElaPushButton::clicked, this, [this, filePathInput](bool checked) {
         auto folderPath = QFileDialog::getExistingDirectory(this, "选择TissueRecord文件夹", QDir::homePath(), QFileDialog::ShowDirsOnly);
 
         filePathInput->setText(folderPath);
     });
-    filePathSelector->addWidget(fileSelectorButton);
+    filePathSelectorLayout->addWidget(fileSelectorButton);
 
     auto* importButton = new ElaPushButton("导入数据", this);
     connect(importButton, &ElaPushButton::clicked, this, [this, filePathInput, centerLayout](bool checked) {
@@ -62,7 +62,8 @@ DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入
 
     });
 
-    centerLayout->addLayout(filePathSelector);
+    centerLayout->addWidget(new ElaText("选择TissueRecord文件夹导入数据，已经导入的数据会自动忽略。", this));
+    centerLayout->addLayout(filePathSelectorLayout);
     centerLayout->addWidget(importButton);
 
 }

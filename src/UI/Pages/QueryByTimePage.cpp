@@ -20,6 +20,8 @@
 #include "ElaText.h"
 #include <QTimeEdit>
 
+#include "ElaMessageBar.h"
+
 QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     auto startDateLayout = new QHBoxLayout(this);
     startDateLayout->addWidget(new ElaText("选择查询开始日期", this));
@@ -30,6 +32,7 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     auto startTimeLayout = new QHBoxLayout(this);
     startTimeLayout->addWidget(new ElaText("选择查询开始时间", this));
     m_StartTime = new QTimeEdit(this);
+    m_StartTime->setDisplayFormat(QString("HH:mm:ss"));
     m_StartTime->setTime(QTime::currentTime());
     startTimeLayout->addWidget(m_StartTime);
 
@@ -42,6 +45,7 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     auto endTimeLayout = new QHBoxLayout(this);
     endTimeLayout->addWidget(new ElaText("选择查询结束时间", this));
     m_EndTime = new QTimeEdit(this);
+    m_EndTime->setDisplayFormat(QString("HH:mm:ss"));
     m_EndTime->setTime(QTime::currentTime());
     endTimeLayout->addWidget(m_EndTime);
 
@@ -51,6 +55,11 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     userLayout->addWidget(m_UserLabel);
     m_UserComboBox = new ElaMultiSelectComboBox(this);
     userLayout->addWidget(m_UserComboBox);
+    m_RefreshButton = new ElaPushButton("刷新用户列表", this);
+    connect(m_RefreshButton, &ElaPushButton::clicked, this, [this]() {
+        RefreshGlobalData();
+    });
+    userLayout->addWidget(m_RefreshButton);
 
     auto enableTimeRangeQueryLayout = new QHBoxLayout(this);
     m_EnableTimeRangeQuery = new ElaText("启用时间范围查询", this);
@@ -66,15 +75,10 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     timeRangeLayout->addLayout(endTimeLayout);
 
     auto actionLayout = new QHBoxLayout(this);
-    m_RefreshButton = new ElaPushButton("刷新", this);
-    connect(m_RefreshButton, &ElaPushButton::clicked, this, [this]() {
-        RefreshGlobalData();
-    });
     m_QueryButton = new ElaPushButton("查询", this);
     connect(m_QueryButton, &ElaPushButton::clicked, this, [this]() {
         ExecuteQuery();
     });
-    actionLayout->addWidget(m_RefreshButton);
     actionLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
     actionLayout->addWidget(m_QueryButton);
 
@@ -128,11 +132,17 @@ void QueryByTimePage::RefreshGlobalData() {
 }
 
 void QueryByTimePage::ExecuteQuery() {
+    ElaMessageBar::information(ElaMessageBarType::BottomRight, "提示",
+                               "正在执行查询，请稍后...", 3000, this);
+
     calculateTimeRange();
     calculateSuccessRate();
     plotStatus();
     plotFluorescenceResult();
     plotPerfusionResultsByDay();
+
+    ElaMessageBar::success(ElaMessageBarType::BottomRight, "提示",
+                               "查询已完成！", 3000, this);
 }
 
 void QueryByTimePage::GetAllUsers() {
@@ -419,6 +429,13 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
         std::istringstream timeStream(timeString);
         timeStream >> std::get_time(&timepoint, "%Y-%m-%d %H:%M:%S");
 
+        if (successCounts.find(std::mktime(&timepoint)) == successCounts.end()) {
+            successCounts[std::mktime(&timepoint)] = 0;
+        }
+        if (failureCounts.find(std::mktime(&timepoint)) == failureCounts.end()) {
+            failureCounts[std::mktime(&timepoint)] = 0;
+        }
+
         std::string result = std::get<1>(row);
         if (result == "Success") {
             successCounts[std::mktime(&timepoint)]++;
@@ -428,22 +445,80 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
         }
     }
 
-    auto* successSeries = new QLineSeries();
-    auto* failureSeries = new QLineSeries();
+    auto* successSeries = new QLineSeries(this);
+    auto* failureSeries = new QLineSeries(this);
     successSeries->setName("Success");
     failureSeries->setName("Failure");
+
+    int minValue = std::numeric_limits<int>::max();
+    int maxValue = -std::numeric_limits<int>::max();
+
+    QDateTime minDateTime = QDateTime::currentDateTime();
+    QDateTime maxDateTime;
 
     for (const auto&entry: successCounts) {
         QDateTime dateTime = QDateTime::fromSecsSinceEpoch(entry.first);
         successSeries->append(dateTime.toMSecsSinceEpoch(), entry.second);
+        if (entry.second < minValue) {
+            minValue = entry.second;
+        }
+        if (entry.second > maxValue) {
+            maxValue = entry.second;
+        }
+        if(dateTime < minDateTime) {
+            minDateTime = dateTime;
+        }
+        if(dateTime > maxDateTime) {
+            maxDateTime = dateTime;
+        }
     }
 
     for (const auto&entry: failureCounts) {
         QDateTime dateTime = QDateTime::fromSecsSinceEpoch(entry.first);
         failureSeries->append(dateTime.toMSecsSinceEpoch(), entry.second);
+        if (entry.second < minValue) {
+            minValue = entry.second;
+        }
+        if (entry.second > maxValue) {
+            maxValue = entry.second;
+        }
+        if(dateTime < minDateTime) {
+            minDateTime = dateTime;
+        }
+        if(dateTime > maxDateTime) {
+            maxDateTime = dateTime;
+        }
     }
 
     m_PerfusionChart->removeAllSeries();
+
+    // Connect the hovered signal to the custom slot
+    connect(successSeries, &QLineSeries::hovered, this, [](const QPointF&point, bool state) {
+        if (state) {
+            // Show the tooltip at the mouse position
+            QToolTip::showText(QCursor::pos(), QString("Value: %1").arg(point.y()));
+        }
+        else {
+            // Hide the tooltip when not hovering
+            QToolTip::hideText();
+        }
+    });
+    connect(failureSeries, &QLineSeries::hovered, this, [](const QPointF&point, bool state) {
+        if (state) {
+            // Show the tooltip at the mouse position
+            QToolTip::showText(QCursor::pos(), QString("Value: %1").arg(point.y()));
+        }
+        else {
+            // Hide the tooltip when not hovering
+            QToolTip::hideText();
+        }
+    });
+
+
+    for (auto&axis: m_PerfusionChart->axes()) {
+        m_PerfusionChart->removeAxis(axis);
+    }
+
     m_PerfusionChart->addSeries(successSeries);
     m_PerfusionChart->addSeries(failureSeries);
     m_PerfusionChart->setTitle("Daily Perfusion Success and Failure Counts");
@@ -451,9 +526,11 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
     auto* axisX = new QDateTimeAxis;
     axisX->setFormat("yyyy-MM-dd");
     axisX->setTitleText("Date");
+    axisX->setTickCount(successSeries->count());
     m_PerfusionChart->addAxis(axisX, Qt::AlignBottom);
     successSeries->attachAxis(axisX);
     failureSeries->attachAxis(axisX);
+    axisX->setRange(minDateTime.addDays(-1), maxDateTime.addDays(1));
 
     auto* axisY = new QValueAxis;
     axisY->setTitleText("Count");
@@ -461,8 +538,10 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
     m_PerfusionChart->addAxis(axisY, Qt::AlignLeft);
     successSeries->attachAxis(axisY);
     failureSeries->attachAxis(axisY);
+    axisY->setRange(std::max(0,minValue - 10), maxValue + 10);
 
     m_PerfusionChartView->setRenderHint(QPainter::Antialiasing, true);
-    m_PerfusionChartView->chart()->setAnimationOptions(QChart::AllAnimations);
+    m_PerfusionChartView->setRenderHint(QPainter::TextAntialiasing, true);
+    m_PerfusionChartView->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_PerfusionChartView->chart()->legend()->show();
 }

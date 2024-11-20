@@ -52,13 +52,6 @@ public:
         auto [startDateStr, startTimeStr] = FormatDateTime(queryInfo.Start);
         auto [endDateStr, endTimeStr] = FormatDateTime(queryInfo.End);
 
-        // std::string startDateStr = "2024-10-23";
-        // std::string endDateStr = "2024-10-23";
-        //
-        // std::string startTimeStr = "20:07:00";
-        // std::string endTimeStr = "23:07:00";
-
-
         auto results = db.select(
             columns(&CellTissueInfo::Status, count(&CellTissueInfo::Status)),
             where(((c(&CellTissueInfo::PerfusionDate) > startDateStr) ||

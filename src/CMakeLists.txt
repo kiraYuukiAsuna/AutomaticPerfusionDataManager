@@ -52,7 +52,6 @@ set(PROJECT_SOURCES
         UI/Pages/DataImportPage.h
         UI/Pages/DataImportPage.cpp
 
-        Worker/Worker.hpp
         UI/Pages/QueryByTimePage.cpp
         UI/Pages/QueryByTimePage.h
 

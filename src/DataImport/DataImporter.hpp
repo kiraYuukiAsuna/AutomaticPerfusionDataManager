@@ -6,6 +6,8 @@
 #include <Util/Util.hpp>
 #include <filesystem>
 
+#include "Log/Log.h"
+
 class DataImporter {
 public:
 	std::vector<std::filesystem::path> m_TissueFolders;
@@ -23,6 +25,7 @@ public:
                  }
 
 	        for (const auto& tissueFolder : m_TissueFolders) {
+	        	SeeleInfo("{}", tissueFolder.string());
 	            int inserted = importCellTissueFile(tissueFolder);
 	            dbCellTissueInsertCount += inserted;
 	        }
@@ -52,6 +55,10 @@ public:
 				auto fileName = recordFolderEntry.path().stem().string();
 				auto splitResult = StringSplit(fileName, '_');
 
+				if(splitResult.size() <= 2) {
+					splitResult = StringSplit(fileName, '-');
+				}
+
 				if (splitResult.size() == 3) {
 					int cellId;
 					try {
@@ -64,6 +71,11 @@ public:
 
 							auto lastFileName = iter->second.stem().string();
 							auto sp = StringSplit(lastFileName, '_');
+
+							if(sp.size() <= 2) {
+								sp = StringSplit(fileName, '-');
+							}
+
 							int lastDate = std::stoi(sp[0]);
 							int lastTTime = std::stoi(sp[1]);
 
@@ -75,6 +87,7 @@ public:
 							cellMap.emplace(cellId, recordFolderEntry.path());
 						}
 					} catch (std::exception& e) {
+						SeeleError("{}",e.what());
 					}
 				}
 			} else if (recordFolderEntry.is_regular_file()) {
@@ -83,6 +96,11 @@ public:
 					if (fileName.find(tissueFolder.filename().string()) !=
 						std::string::npos) {
 						auto splitResult = StringSplit(fileName, '_');
+
+						if(splitResult.size() <= 2) {
+							splitResult = StringSplit(fileName, '-');
+						}
+
 						int curDate = 0;
 						int curTime = 0;
 						try {
@@ -91,6 +109,7 @@ public:
 							curTime =
 								std::stoi(splitResult[splitResult.size() - 1]);
 						} catch (std::exception& e) {
+							SeeleError("{}",e.what());
 						}
 						if (curDate > date ||
 							(curDate == date && curTime > time)) {
@@ -101,11 +120,17 @@ public:
 					} else if (fileName.find("state_time_differences") !=
 							   std::string::npos) {
 						auto splitResult = StringSplit(fileName, '_');
+
+						if(splitResult.size() <= 2) {
+							splitResult = StringSplit(fileName, '-');
+						}
+
 						int needleId = -1;
 						try {
 							needleId =
 								std::stoi(splitResult[splitResult.size() - 1]);
 						} catch (std::exception& e) {
+							SeeleError("{}",e.what());
 						}
 						if (needleId != -1) {
 							stateMachineDifferencesFiles.emplace_back(
@@ -131,17 +156,17 @@ public:
                     dbCellTissueInsertCount++;
                 }
 			} catch (std::exception& e) {
-				std::cout << e.what() << std::endl;
+				// SeeleError("{}", e.what());
 			}
 		}
 
-		for (auto& [needleName, stateFile] : stateMachineDifferencesFiles) {
-			auto state = ReadStateTimeDifferenceInfoListFromFile(stateFile);
-			for (auto& stateInfo : state) {
-				stateInfo.TissueName = tissueFolder.filename().string();
-				db.insert(stateInfo);
-			}
-		}
+		// for (auto& [needleName, stateFile] : stateMachineDifferencesFiles) {
+		// 	auto state = ReadStateTimeDifferenceInfoListFromFile(stateFile);
+		// 	for (auto& stateInfo : state) {
+		// 		stateInfo.TissueName = tissueFolder.filename().string();
+		// 		db.insert(stateInfo);
+		// 	}
+		// }
 
 	    return dbCellTissueInsertCount;
 	}

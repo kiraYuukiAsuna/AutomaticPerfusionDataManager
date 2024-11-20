@@ -268,6 +268,13 @@ void OverviewPage::plotPerfusionResults() {
         std::istringstream timeStream(timeString);
         timeStream >> std::get_time(&timepoint, "%Y-%m-%d %H:%M:%S");
 
+        if (successCounts.find(std::mktime(&timepoint)) == successCounts.end()) {
+            successCounts[std::mktime(&timepoint)] = 0;
+        }
+        if (failureCounts.find(std::mktime(&timepoint)) == failureCounts.end()) {
+            failureCounts[std::mktime(&timepoint)] = 0;
+        }
+
         std::string result = std::get<1>(row);
         if (result == "Success") {
             successCounts[std::mktime(&timepoint)]++;
@@ -277,41 +284,103 @@ void OverviewPage::plotPerfusionResults() {
         }
     }
 
-    auto* successSeries = new QLineSeries();
-    auto* failureSeries = new QLineSeries();
+    auto* successSeries = new QLineSeries(this);
+    auto* failureSeries = new QLineSeries(this);
     successSeries->setName("Success");
     failureSeries->setName("Failure");
+
+    int minValue = std::numeric_limits<int>::max();
+    int maxValue = -std::numeric_limits<int>::max();
+
+    QDateTime minDateTime = QDateTime::currentDateTime();
+    QDateTime maxDateTime;
 
     for (const auto&entry: successCounts) {
         QDateTime dateTime = QDateTime::fromSecsSinceEpoch(entry.first);
         successSeries->append(dateTime.toMSecsSinceEpoch(), entry.second);
+        if (entry.second < minValue) {
+            minValue = entry.second;
+        }
+        if (entry.second > maxValue) {
+            maxValue = entry.second;
+        }
+        if(dateTime < minDateTime) {
+            minDateTime = dateTime;
+        }
+        if(dateTime > maxDateTime) {
+            maxDateTime = dateTime;
+        }
     }
 
     for (const auto&entry: failureCounts) {
         QDateTime dateTime = QDateTime::fromSecsSinceEpoch(entry.first);
         failureSeries->append(dateTime.toMSecsSinceEpoch(), entry.second);
+        if (entry.second < minValue) {
+            minValue = entry.second;
+        }
+        if (entry.second > maxValue) {
+            maxValue = entry.second;
+        }
+        if(dateTime < minDateTime) {
+            minDateTime = dateTime;
+        }
+        if(dateTime > maxDateTime) {
+            maxDateTime = dateTime;
+        }
     }
 
     m_PerfusionChart->removeAllSeries();
+
+    // Connect the hovered signal to the custom slot
+    connect(successSeries, &QLineSeries::hovered, this, [](const QPointF&point, bool state) {
+        if (state) {
+            // Show the tooltip at the mouse position
+            QToolTip::showText(QCursor::pos(), QString("Value: %1").arg(point.y()));
+        }
+        else {
+            // Hide the tooltip when not hovering
+            QToolTip::hideText();
+        }
+    });
+    connect(failureSeries, &QLineSeries::hovered, this, [](const QPointF&point, bool state) {
+        if (state) {
+            // Show the tooltip at the mouse position
+            QToolTip::showText(QCursor::pos(), QString("Value: %1").arg(point.y()));
+        }
+        else {
+            // Hide the tooltip when not hovering
+            QToolTip::hideText();
+        }
+    });
+
+
+    for (auto&axis: m_PerfusionChart->axes()) {
+        m_PerfusionChart->removeAxis(axis);
+    }
+
     m_PerfusionChart->addSeries(successSeries);
     m_PerfusionChart->addSeries(failureSeries);
     m_PerfusionChart->setTitle("Daily Perfusion Success and Failure Counts");
 
-    QDateTimeAxis* axisX = new QDateTimeAxis;
+    auto* axisX = new QDateTimeAxis;
     axisX->setFormat("yyyy-MM-dd");
     axisX->setTitleText("Date");
+    axisX->setTickCount(successSeries->count());
     m_PerfusionChart->addAxis(axisX, Qt::AlignBottom);
     successSeries->attachAxis(axisX);
     failureSeries->attachAxis(axisX);
+    axisX->setRange(minDateTime.addDays(-1), maxDateTime.addDays(1));
 
-    QValueAxis* axisY = new QValueAxis;
+    auto* axisY = new QValueAxis;
     axisY->setTitleText("Count");
     axisY->setLabelFormat("%d");
     m_PerfusionChart->addAxis(axisY, Qt::AlignLeft);
     successSeries->attachAxis(axisY);
     failureSeries->attachAxis(axisY);
+    axisY->setRange(std::max(0,minValue - 10), maxValue + 10);
 
     m_PerfusionChartView->setRenderHint(QPainter::Antialiasing, true);
-    m_PerfusionChartView->chart()->setAnimationOptions(QChart::AllAnimations);
+    m_PerfusionChartView->setRenderHint(QPainter::TextAntialiasing, true);
+    m_PerfusionChartView->chart()->setAnimationOptions(QChart::SeriesAnimations);
     m_PerfusionChartView->chart()->legend()->show();
 }
