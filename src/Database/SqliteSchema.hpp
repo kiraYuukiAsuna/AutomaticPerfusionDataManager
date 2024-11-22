@@ -8,12 +8,17 @@
 #include <FileReader/NeedleTrackInfo.hpp>
 #include <FileReader/StateTimeDifferencesInfo.hpp>
 
+#include "Config/Config.hpp"
+
 class SqliteSchema {
 public:
     static auto& getDBStorage() {
+        ConfigManager::GetInstance().ReadConfigFromFile();
+        auto config = ConfigManager::GetInstance().GetConfig();
+
         using namespace sqlite_orm;
         static auto db = make_storage(
-            "DataBase.sqlite",
+            (config.DataStoragePath / "DataBase.sqlite").string(),
             make_unique_index("idx_TissueCellID", indexed_column(&CellTissueInfo::TissueCellID).desc()),
             make_index("idx_PerfusionDate", &CellTissueInfo::PerfusionDate),
             make_index("idx_PerfusionTime", &CellTissueInfo::PerfusionTime),

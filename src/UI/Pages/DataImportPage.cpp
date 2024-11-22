@@ -16,7 +16,6 @@
 #include "DataImport/DataImporter.hpp"
 
 DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入") {
-    auto *centralWidget = this->centralWidget();
     auto *centerLayout = new QVBoxLayout;
 
     auto* filePathSelectorLayout = new QHBoxLayout(this);
@@ -74,6 +73,7 @@ DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入
 
     centerLayout->addLayout(formLayout);
 
+    auto *centralWidget = this->centralWidget();
     centralWidget->setLayout(centerLayout);
 
 }

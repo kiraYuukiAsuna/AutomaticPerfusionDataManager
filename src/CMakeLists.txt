@@ -45,17 +45,21 @@ set(PROJECT_SOURCES
         Util/Util.hpp
 
         Database/SqliteSchema.hpp
+        Database/CellInformationRepository.hpp
+
         UI/Pages/BasePage.cpp
         UI/Pages/BasePage.h
         UI/Pages/OverviewPage.h
         UI/Pages/OverviewPage.cpp
         UI/Pages/DataImportPage.h
         UI/Pages/DataImportPage.cpp
-
         UI/Pages/QueryByTimePage.cpp
         UI/Pages/QueryByTimePage.h
+        UI/Pages/ConfigPage.h
+        UI/Pages/ConfigPage.cpp
 
         Analysis/AnalysisBase.hpp
+        Config/Config.hpp
 )
 
 
