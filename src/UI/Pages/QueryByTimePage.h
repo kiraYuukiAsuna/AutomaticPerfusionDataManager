@@ -55,7 +55,6 @@ private:
 
     ElaMultiSelectComboBox* m_UserComboBox = nullptr;
 
-    ElaText* m_UserLabel = nullptr;
     ElaText* m_TimeRange = nullptr;
 
     QChart* m_StatusChart = nullptr;

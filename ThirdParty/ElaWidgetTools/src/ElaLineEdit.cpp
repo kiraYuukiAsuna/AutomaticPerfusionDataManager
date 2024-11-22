@@ -30,6 +30,7 @@ ElaLineEdit::ElaLineEdit(QWidget* parent)
     d->_focusEvent->registerAndInit();
     setMouseTracking(true);
     QFont textFont = font();
+    textFont.setPixelSize(15);
     textFont.setLetterSpacing(QFont::AbsoluteSpacing, d->_textSpacing);
     setFont(textFont);
     setStyle(new ElaLineEditStyle(style()));

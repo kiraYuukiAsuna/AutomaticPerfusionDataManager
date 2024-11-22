@@ -1,6 +1,5 @@
 #include "QueryByTimePage.h"
 
-#include "ElaCalendar.h"
 #include "ElaMultiSelectComboBox.h"
 
 #include <QChart>
@@ -21,72 +20,57 @@
 #include <QTimeEdit>
 
 #include "ElaMessageBar.h"
+#include <QFormLayout>
 
 QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
-    auto startDateLayout = new QHBoxLayout(this);
-    startDateLayout->addWidget(new ElaText("选择查询开始日期", this));
     m_StartDate = new ElaCalendarPicker(this);
     m_StartDate->setSelectedDate(QDate::currentDate());
-    startDateLayout->addWidget(m_StartDate);
 
-    auto startTimeLayout = new QHBoxLayout(this);
-    startTimeLayout->addWidget(new ElaText("选择查询开始时间", this));
     m_StartTime = new QTimeEdit(this);
     m_StartTime->setDisplayFormat(QString("HH:mm:ss"));
     m_StartTime->setTime(QTime::currentTime());
-    startTimeLayout->addWidget(m_StartTime);
 
-    auto endDateLayout = new QHBoxLayout(this);
-    endDateLayout->addWidget(new ElaText("选择查询结束日期", this));
     m_EndDate = new ElaCalendarPicker(this);
     m_EndDate->setSelectedDate(QDate::currentDate());
-    endDateLayout->addWidget(m_EndDate);
 
-    auto endTimeLayout = new QHBoxLayout(this);
-    endTimeLayout->addWidget(new ElaText("选择查询结束时间", this));
     m_EndTime = new QTimeEdit(this);
     m_EndTime->setDisplayFormat(QString("HH:mm:ss"));
     m_EndTime->setTime(QTime::currentTime());
-    endTimeLayout->addWidget(m_EndTime);
+
+    auto timeRangeLayout = new QFormLayout(this);
+    timeRangeLayout->addRow(new ElaText("开始日期",this), m_StartDate);
+    timeRangeLayout->addRow(new ElaText("开始时间",this), m_StartTime);
+    timeRangeLayout->addRow(new ElaText("结束日期",this), m_EndDate);
+    timeRangeLayout->addRow(new ElaText("结束时间",this), m_EndTime);
 
     auto userLayout = new QHBoxLayout(this);
-    m_UserLabel = new ElaText("排除用户", this);
-    m_UserLabel->setAlignment(Qt::AlignRight);
-    userLayout->addWidget(m_UserLabel);
     m_UserComboBox = new ElaMultiSelectComboBox(this);
     userLayout->addWidget(m_UserComboBox);
     m_RefreshButton = new ElaPushButton("刷新用户列表", this);
+    m_RefreshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(m_RefreshButton, &ElaPushButton::clicked, this, [this]() {
         RefreshGlobalData();
     });
     userLayout->addWidget(m_RefreshButton);
 
-    auto enableTimeRangeQueryLayout = new QHBoxLayout(this);
-    m_EnableTimeRangeQuery = new ElaText("启用时间范围查询", this);
-    m_EnableTimeRangeQuery->setAlignment(Qt::AlignRight);
     m_EnableTimeRangeQueryCheckBox = new ElaCheckBox(this);
-    enableTimeRangeQueryLayout->addWidget(m_EnableTimeRangeQuery);
-    enableTimeRangeQueryLayout->addWidget(m_EnableTimeRangeQueryCheckBox);
-
-    auto timeRangeLayout = new QVBoxLayout(this);
-    timeRangeLayout->addLayout(startDateLayout);
-    timeRangeLayout->addLayout(startTimeLayout);
-    timeRangeLayout->addLayout(endDateLayout);
-    timeRangeLayout->addLayout(endTimeLayout);
 
     auto actionLayout = new QHBoxLayout(this);
     m_QueryButton = new ElaPushButton("查询", this);
+    m_RefreshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(m_QueryButton, &ElaPushButton::clicked, this, [this]() {
         ExecuteQuery();
     });
     actionLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
     actionLayout->addWidget(m_QueryButton);
 
-    auto rightLayout = new QVBoxLayout(this);
+    auto parmLayout = new QFormLayout(this);
+    parmLayout->addRow(new ElaText("排除用户",this), userLayout);
+    parmLayout->addRow(new ElaText("启用时间范围查询",this), m_EnableTimeRangeQueryCheckBox);
+    parmLayout->addRow(new ElaText("操作",this), actionLayout);
 
-    rightLayout->addLayout(userLayout);
-    rightLayout->addLayout(enableTimeRangeQueryLayout);
-    rightLayout->addLayout(actionLayout);
+    auto rightLayout = new QVBoxLayout(this);
+    rightLayout->addLayout(parmLayout);
 
     auto leftLayout = new QVBoxLayout(this);
     leftLayout->addLayout(timeRangeLayout);
@@ -116,13 +100,15 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     RefreshGlobalData();
 
     m_CentralWidget = this->centralWidget();
-    auto* centerLayout = new QVBoxLayout(m_CentralWidget);
+    auto* centerLayout = new QVBoxLayout;
 
     centerLayout->addLayout(topLayout);
     centerLayout->addWidget(m_TimeRange);
     centerLayout->addWidget(m_SuccessRateText);
     centerLayout->addLayout(chartLayout);
     centerLayout->addWidget(m_PerfusionChartView);
+
+    m_CentralWidget->setLayout(centerLayout);
 }
 
 QueryByTimePage::~QueryByTimePage() = default;

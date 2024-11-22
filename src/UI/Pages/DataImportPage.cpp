@@ -7,20 +7,20 @@
 #include "ElaText.h"
 #include <QFileDialog>
 #include <future>
+#include <QFormLayout>
 #include <asio/post.hpp>
 
+#include "ElaComboBox.h"
 #include "ElaMessageBar.h"
 #include "ElaMessageButton.h"
 #include "DataImport/DataImporter.hpp"
 
 DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入") {
     auto *centralWidget = this->centralWidget();
-    auto *centerLayout = new QVBoxLayout(centralWidget);
+    auto *centerLayout = new QVBoxLayout;
 
     auto* filePathSelectorLayout = new QHBoxLayout(this);
-    filePathSelectorLayout->addWidget(new ElaText("路径:", this));
     auto* filePathInput = new ElaLineEdit(this);
-    filePathInput->setEnabled(false);
     filePathSelectorLayout->addWidget(filePathInput);
     auto* fileSelectorButton = new ElaPushButton("选择TissueRecord文件夹", this);
     connect(fileSelectorButton, &ElaPushButton::clicked, this, [this, filePathInput](bool checked) {
@@ -30,7 +30,11 @@ DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入
     });
     filePathSelectorLayout->addWidget(fileSelectorButton);
 
+    m_ImportEngineComboBox = new ElaComboBox(this);
+    m_ImportEngineComboBox->addItem("Default");
+
     auto* importButton = new ElaPushButton("导入数据", this);
+    importButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(importButton, &ElaPushButton::clicked, this, [this, filePathInput, centerLayout](bool checked) {
         auto folderPath = filePathInput->text();
         std::filesystem::path path(folderPath.toStdString());
@@ -62,9 +66,15 @@ DataImportPage::DataImportPage(QWidget* parent) : BasePage(parent, "数据导入
 
     });
 
-    centerLayout->addWidget(new ElaText("选择TissueRecord文件夹导入数据，已经导入的数据会自动忽略。", this));
-    centerLayout->addLayout(filePathSelectorLayout);
-    centerLayout->addWidget(importButton);
+    auto formLayout = new QFormLayout(this);
+    formLayout->addRow(new ElaText("选择TissueRecord文件夹导入数据，已经导入的数据会自动忽略。", this));
+    formLayout->addRow(new ElaText("TissueRecord路径:",this),filePathSelectorLayout);
+    formLayout->addRow(new ElaText("数据导入引擎",this), m_ImportEngineComboBox);
+    formLayout->addRow(new ElaText("操作:",this),importButton);
+
+    centerLayout->addLayout(formLayout);
+
+    centralWidget->setLayout(centerLayout);
 
 }
 

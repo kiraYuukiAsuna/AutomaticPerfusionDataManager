@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ElaComboBox.h"
 #include "UI/Pages/BasePage.h"
 
 class DataImportPage : public BasePage {
@@ -7,4 +8,7 @@ class DataImportPage : public BasePage {
 public:
 	explicit DataImportPage(QWidget *parent = nullptr);
 	~DataImportPage();
+
+private:
+	ElaComboBox* m_ImportEngineComboBox{nullptr};
 };

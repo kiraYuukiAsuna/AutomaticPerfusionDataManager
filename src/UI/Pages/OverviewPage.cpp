@@ -16,6 +16,7 @@ OverviewPage::OverviewPage(QWidget* parent) : BasePage(parent, "总览") {
     auto controlLayout = new QHBoxLayout(this);
 
     auto m_RefreshButton = new ElaPushButton("刷新", this);
+    m_RefreshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(m_RefreshButton, &ElaPushButton::clicked, this, [this]() {
         RefreshGlobalData();
     });
@@ -38,7 +39,7 @@ OverviewPage::OverviewPage(QWidget* parent) : BasePage(parent, "总览") {
     RefreshGlobalData();
 
     auto* centralWidget = this->centralWidget();
-    auto* centerLayout = new QVBoxLayout(centralWidget);
+    auto* centerLayout = new QVBoxLayout;
 
     auto* chartLayout = new QHBoxLayout;
     chartLayout->addWidget(m_StatusChartView);
@@ -49,6 +50,8 @@ OverviewPage::OverviewPage(QWidget* parent) : BasePage(parent, "总览") {
     centerLayout->addWidget(m_SuccessRateText);
     centerLayout->addLayout(chartLayout);
     centerLayout->addWidget(m_PerfusionChartView);
+
+    centralWidget->setLayout(centerLayout);
 }
 
 OverviewPage::~OverviewPage() {
