@@ -89,7 +89,7 @@ QueryByTimePage::QueryByTimePage(QWidget* parent) : BasePage(parent, "查询") {
     chartLayout->addWidget(m_StatusChartView);
     chartLayout->addWidget(m_FluorescenceResultChartView);
 
-    m_SuccessRateText = new ElaText("有效细胞数量：xxx，成功灌注细胞数量：xxx | 成功率：xx%", this);
+    m_SuccessRateText = new ElaText("灌注的细胞数量：xxx，成功灌注细胞数量：xxx | 成功率：xx%", this);
 
     m_TimeRange =
             new ElaText("已统计数据时间范围：xxxx.xx.xx - xxxx.xx.xx", this);

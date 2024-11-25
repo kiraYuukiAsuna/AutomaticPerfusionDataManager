@@ -10,8 +10,8 @@
 struct StateTimeDifferenceInfo {
 	int id = -1;
 	std::string TissueName;
-
 	std::string NeedleName;
+
 	int CellId = 0;
 	float CellDepth = 0;
 	int IsBadCell = false;
