@@ -13,10 +13,11 @@ class DataImporter {
 public:
     std::vector<std::filesystem::path> m_TissueFolders;
 
-    using CallBackType = std::function<void(bool, const std::string&)>;
+    using CallBackType = std::function<void(bool finished, float progress, bool status, const std::string&)>;
 
     int importRecordFromFolder(const std::filesystem::path&folderPath, CallBackType callback) {
         int dbCellTissueInsertCount = 0;
+        std::filesystem::path currentProcessFolder;
         try {
             for (const auto&tissueFolderEntry:
                  std::filesystem::directory_iterator(folderPath)) {
@@ -25,16 +26,24 @@ public:
                 }
             }
 
+            int total = m_TissueFolders.size();
+            int current = 0;
             for (const auto&tissueFolder: m_TissueFolders) {
+                currentProcessFolder = tissueFolder;
                 SeeleInfo("{}", tissueFolder.string());
                 int inserted = importCellTissueFile(tissueFolder);
                 dbCellTissueInsertCount += inserted;
+                current++;
+                callback(false, (float)current/total, false,"正在导入数据:" + tissueFolder.stem().string());
             }
 
-            callback(true, "导入数据成功！" + std::to_string(dbCellTissueInsertCount) + "条新数据已导入！");
+            callback(true, 1, true, "导入数据成功！" + std::to_string(dbCellTissueInsertCount) + "条新数据已导入！");
         }
         catch (std::exception&e) {
-            callback(false, std::string{"导入数据失败！"} + e.what());
+            callback(
+                true, 1, false,
+                std::string{"导入数据失败！"} + e.what() + "\n数据文件：" + currentProcessFolder.string() + "\n当前" + std::to_string(
+                    dbCellTissueInsertCount) + "条新数据已导入！");;
         }
 
         return dbCellTissueInsertCount;
@@ -159,16 +168,15 @@ public:
 
         auto cellTissueInfos = ReadCellTissueListFromFile(cellTissueFilePath);
 
-        std::map<int, std::pair<StateTimeDifferenceInfo,std::string>> stateMachineDifferencesInfos;
+        std::map<int, std::pair<StateTimeDifferenceInfo, std::string>> stateMachineDifferencesInfos;
         for (auto&[needleName, stateFile]: stateMachineDifferencesFiles) {
             auto state = ReadStateTimeDifferenceInfoListFromFile(stateFile);
             for (auto&stateInfo: state) {
                 stateInfo.TissueName = tissueFolder.filename().string();
                 auto sp = StringSplit(stateFile.stem().string(), '_');
-                if(!sp.empty()) {
+                if (!sp.empty()) {
                     auto needleNameStr = sp[sp.size() - 1];
-                    stateMachineDifferencesInfos.emplace(stateInfo.CellId, std::pair(stateInfo,needleNameStr));
-
+                    stateMachineDifferencesInfos.emplace(stateInfo.CellId, std::pair(stateInfo, needleNameStr));
                 }
             }
         }

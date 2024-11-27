@@ -141,7 +141,7 @@ void QueryByTimePage::GetAllUsers() {
     m_UserComboBox->setCurrentSelection(QList<int>());
 }
 
-void QueryByTimePage::calculateTimeRange() {
+std::pair<std::tm, std::tm> QueryByTimePage::calculateTimeRange() {
     if (m_EnableTimeRangeQueryCheckBox->isChecked()) {
         std::time_t minTimePoint = {}, maxTimePoint = {};
         GetCurrentSelectedTimeRange(minTimePoint, maxTimePoint);
@@ -156,7 +156,7 @@ void QueryByTimePage::calculateTimeRange() {
 
         m_TimeRange->setText(QString::fromStdString(
             "（测试数据）已统计数据时间范围：" + perfusionTime));
-        return;
+        return {};
     }
 
     auto results = AnalysisBase::GetTimeRange();
@@ -167,7 +167,7 @@ void QueryByTimePage::calculateTimeRange() {
     if (results.empty()) {
         m_TimeRange->setText(
             QString::fromStdString("（测试数据）已统计数据时间范围：无"));
-        return;
+        return {minTimePoint, maxTimePoint};
     }
 
     for (const auto&row: results) {
@@ -198,6 +198,8 @@ void QueryByTimePage::calculateTimeRange() {
 
     m_TimeRange->setText(QString::fromStdString(
         "（测试数据）已统计数据时间范围：" + perfusionTime));
+
+    return {minTimePoint, maxTimePoint};
 }
 
 void QueryByTimePage::calculateSuccessRate() {
@@ -409,6 +411,29 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
     std::map<time_t, int> successCounts;
     std::map<time_t, int> failureCounts;
 
+    if (m_EnableTimeRangeQueryCheckBox->isChecked()) {
+        for (std::time_t t = queryInfo.Start; t <= queryInfo.End; t += 86400) {
+            std::tm* timeInfo = std::gmtime(&t);
+            timeInfo->tm_hour = 0;
+            timeInfo->tm_min = 0;
+            timeInfo->tm_sec = 0;
+            std::time_t adjustedTime = std::mktime(timeInfo);
+            successCounts[adjustedTime] = 0;
+            failureCounts[adjustedTime] = 0;
+        }
+    }else {
+        auto [startTime, endTime] = calculateTimeRange();
+        for (std::time_t t = std::mktime(&startTime); t <= std::mktime(&endTime); t += 86400) {
+            std::tm* timeInfo = std::gmtime(&t);
+            timeInfo->tm_hour = 0;
+            timeInfo->tm_min = 0;
+            timeInfo->tm_sec = 0;
+            std::time_t adjustedTime = std::mktime(timeInfo);
+            successCounts[adjustedTime] = 0;
+            failureCounts[adjustedTime] = 0;
+        }
+    }
+
     for (const auto&row: results) {
         std::tm timepoint;
         auto timeString = std::get<0>(row) + "00:00:00";
@@ -430,6 +455,8 @@ void QueryByTimePage::plotPerfusionResultsByDay() {
             failureCounts[std::mktime(&timepoint)]++;
         }
     }
+
+
 
     auto* successSeries = new QLineSeries(this);
     auto* failureSeries = new QLineSeries(this);

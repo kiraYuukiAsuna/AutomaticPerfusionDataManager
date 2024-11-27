@@ -28,7 +28,7 @@ public:
 
     void GetAllUsers();
 
-    void calculateTimeRange();
+    std::pair<std::tm, std::tm> calculateTimeRange();
 
     void calculateSuccessRate();
 

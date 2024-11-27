@@ -38,7 +38,7 @@ private:
 
     void calculateSuccessRate();
 
-    void calculateTimeRange();
+    std::pair<std::tm, std::tm> calculateTimeRange();
 
     void plotPerfusionResults();
 

@@ -217,7 +217,7 @@ void OverviewPage::onSliceHovered(QPieSlice* slice, bool state) {
     }
 }
 
-void OverviewPage::calculateTimeRange() {
+std::pair<std::tm, std::tm> OverviewPage::calculateTimeRange() {
     auto results = AnalysisBase::GetTimeRange();
 
     std::tm minTimePoint = {}, maxTimePoint = {};
@@ -226,7 +226,7 @@ void OverviewPage::calculateTimeRange() {
     if (results.empty()) {
         m_TimeRange->setText(
             QString::fromStdString("（测试数据）已统计数据时间范围：无"));
-        return;
+        return {minTimePoint, maxTimePoint};
     }
 
     for (const auto&row: results) {
@@ -257,6 +257,8 @@ void OverviewPage::calculateTimeRange() {
 
     m_TimeRange->setText(QString::fromStdString(
         "（测试数据）已统计数据时间范围：" + perfusionTime));
+
+    return {minTimePoint, maxTimePoint};
 }
 
 void OverviewPage::plotPerfusionResults() {
@@ -264,6 +266,17 @@ void OverviewPage::plotPerfusionResults() {
 
     std::map<time_t, int> successCounts;
     std::map<time_t, int> failureCounts;
+
+    auto [startTime, endTime] = calculateTimeRange();
+    for (std::time_t t = std::mktime(&startTime); t <= std::mktime(&endTime); t += 86400) {
+        std::tm* timeInfo = std::gmtime(&t);
+        timeInfo->tm_hour = 0;
+        timeInfo->tm_min = 0;
+        timeInfo->tm_sec = 0;
+        std::time_t adjustedTime = std::mktime(timeInfo);
+        successCounts[adjustedTime] = 0;
+        failureCounts[adjustedTime] = 0;
+    }
 
     for (const auto&row: results) {
         std::tm timepoint;
