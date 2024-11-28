@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include "Config/Config.hpp"
 #include "Database/CellInformationRepository.hpp"
-#include "Pages/ConfigPage.h"
+#include "Pages/ConfigDialog.h"
 #include "Pages/DataImportPage.h"
 
 MainWindow::MainWindow(QWidget* parent) : ElaWindow(parent) {
@@ -37,31 +37,12 @@ MainWindow::MainWindow(QWidget* parent) : ElaWindow(parent) {
     auto config = configMgr.GetConfig();
 
     do {
-        config = configMgr.GetConfig();
-        ConfigPage configPage(this);
-        connect(&configPage, &ConfigPage::leftButtonClicked, this, [&configPage, &configMgr]() {
-            auto config = configPage.GetConfig();
-            if (!std::filesystem::exists(config.DataStoragePath)) {
-                QMessageBox::critical(&configPage, "错误", "选择的数据存储路径不存在！");
-            }
-            else {
-                QMessageBox::information(&configPage, "提示", "选择的数据存储路径有效！");
-                configMgr.SetConfig(configPage.GetConfig());
-            }
-        });
-        connect(&configPage, &ConfigPage::middleButtonClicked, this, [&configPage]() {
-            configPage.reject();
-        });
-        connect(&configPage, &ConfigPage::rightButtonClicked, this, [&configPage, &configMgr]() {
-            configPage.accept();
-            configMgr.SetConfig(configPage.GetConfig());
-        });
+        ConfigDialog configPage;
         configPage.SetConfig(config);
         configPage.exec();
+        config = configMgr.GetConfig();
     }
     while (!std::filesystem::exists(config.DataStoragePath));
-
-    configMgr.WriteConfigToFile();
 
     if (!std::filesystem::exists(CellInformationRepository::GetCellInformationRepositoryPath())) {
         std::filesystem::create_directories(CellInformationRepository::GetCellInformationRepositoryPath());

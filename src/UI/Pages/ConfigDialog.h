@@ -6,13 +6,13 @@
 #include "Config/Config.hpp"
 #include "UI/Pages/BasePage.h"
 
-class ConfigPage : public ElaContentDialog {
+class ConfigDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ConfigPage(QWidget* parent = nullptr);
+    explicit ConfigDialog(QWidget* parent = nullptr);
 
-    ~ConfigPage();
+    ~ConfigDialog();
 
     Config GetConfig();
 

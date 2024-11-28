@@ -55,8 +55,8 @@ set(PROJECT_SOURCES
         UI/Pages/DataImportPage.cpp
         UI/Pages/QueryByTimePage.cpp
         UI/Pages/QueryByTimePage.h
-        UI/Pages/ConfigPage.h
-        UI/Pages/ConfigPage.cpp
+        UI/Pages/ConfigDialog.h
+        UI/Pages/ConfigDialog.cpp
 
         Analysis/AnalysisBase.hpp
         Config/Config.hpp

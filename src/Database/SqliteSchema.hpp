@@ -11,14 +11,13 @@
 #include "Config/Config.hpp"
 
 class SqliteSchema {
-public:
-    static auto& getDBStorage() {
-        ConfigManager::GetInstance().ReadConfigFromFile();
-        auto config = ConfigManager::GetInstance().GetConfig();
+private:
+    SqliteSchema() = default;
 
+    static auto GetNewStorage(const std::filesystem::path&path) {
         using namespace sqlite_orm;
-        static auto db = make_storage(
-            (config.DataStoragePath / "DataBase.sqlite").string(),
+        auto storage = make_storage(
+            path.string(),
             make_unique_index("idx_TissueCellID", indexed_column(&CellTissueInfo::TissueCellID).desc()),
             make_index("idx_PerfusionDate", &CellTissueInfo::PerfusionDate),
             make_index("idx_PerfusionTime", &CellTissueInfo::PerfusionTime),
@@ -151,9 +150,33 @@ public:
                 make_column("LIFT_NEEDLE",
                             &StateTimeDifferenceInfo::LIFT_NEEDLE),
                 make_column("END", &StateTimeDifferenceInfo::END))
-
         );
-        db.sync_schema();
-        return db;
+        storage.sync_schema();
+        return storage;
     }
+
+    std::filesystem::path GetStoragePath() {
+        ConfigManager::GetInstance().ReadConfigFromFile();
+        auto config = ConfigManager::GetInstance().GetConfig();
+        auto storageFilePath = config.DataStoragePath / "DataBase.sqlite";
+
+        return storageFilePath;
+    }
+
+    std::filesystem::path m_CurrentPath = GetStoragePath();
+
+public:
+    static auto& getDBStorage() {
+        static SqliteSchema instance;
+        static auto m_Db = GetNewStorage(instance.GetStoragePath());
+
+        if (instance.m_CurrentPath != instance.GetStoragePath()) {
+            static auto db = GetNewStorage(instance.GetStoragePath());
+            return db;
+        }
+
+        return m_Db;
+    }
+
+    ~SqliteSchema() = default;
 };
